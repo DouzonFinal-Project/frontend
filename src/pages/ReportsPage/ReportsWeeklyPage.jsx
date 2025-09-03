@@ -1,4 +1,3 @@
-// src/pages/ReportsWeeklyPage.jsx
 import React, { useEffect, useState } from "react";
 import api from "../api/client"; // axios 인스턴스 (baseURL 설정)
 

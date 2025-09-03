@@ -7,10 +7,10 @@ import DashboardPage from "./pages/Dashboard/DashboardPage";
 import LifeRecordPage from "./pages/LifeRecord/LifeRecordPage"; // ✅ 추가
 import SchedulePage from "./pages/SchedulePage"; // ✅ 추가
 
-import ReportsPage from "./pages/Reportspage/ReportsPage";
-import ReportsWeeklyPage from "./pages/Reportspage/ReportsWeeklyPage";
-import ReportsMonthlyPage from "./pages/Reportspage/ReportsMonthlyPage";
-import ReportsGradesPage from "./pages/Reportspage/ReportsGradesPage";
+import ReportsPage from "./pages/ReportsPage";
+import ReportsWeeklyPage from "./pages/ReportsPage";
+import ReportsMonthlyPage from "./pages/ReportsPage";
+import ReportsGradesPage from "./pages/ReportsPage";
 
 function App() {
   return (

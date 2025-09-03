@@ -1,4 +1,3 @@
-// src/pages/ReportsGradesPage.jsx
 import React, { useEffect, useState } from "react";
 import api from "../api/client";
 import { Card } from "@/components/ui/card";
