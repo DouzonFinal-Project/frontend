@@ -7,6 +7,11 @@ import DashboardPage from "./pages/Dashboard/DashboardPage";
 import LifeRecordPage from "./pages/LifeRecord/LifeRecordPage"; // ✅ 추가
 import SchedulePage from "./pages/SchedulePage"; // ✅ 추가
 
+import ReportsPage from "./pages/Reportspage/ReportsPage";
+import ReportsWeeklyPage from "./pages/Reportspage/ReportsWeeklyPage";
+import ReportsMonthlyPage from "./pages/Reportspage/ReportsMonthlyPage";
+import ReportsGradesPage from "./pages/Reportspage/ReportsGradesPage";
+
 function App() {
   return (
     <Router>
