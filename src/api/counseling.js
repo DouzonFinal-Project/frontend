@@ -38,6 +38,10 @@ export const saveCounseling = (data) =>
 
 // ✅ 상담 마스터 챗
 export const masterCouselingChat = (data) =>
-  API.post("/api/gemini/master-chat", data);
+  API.post("/v1/gemini/master-chat", data);
+
+// ✅ Milvus 상담 일지 저장
+export const milvusAddRecord = (data) =>
+  API.post("/v1/milvus/add-record", data);
 
 export default API;

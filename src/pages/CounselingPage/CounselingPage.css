@@ -4,7 +4,7 @@
   padding: 2rem;
 }
 
-/* 섹션 타이틀 */
+/* 제목 */
 .section-title {
   font-size: 1.6rem;
   font-weight: 700;
@@ -30,10 +30,10 @@
   height: 1.3rem;
 }
 
-/* 그리드 레이아웃 */
+/* 그리드 */
 .counseling-grid {
   display: grid;
-  grid-template-columns: 3fr 2fr; /* 2:1 → 3:2 */
+  grid-template-columns: 3fr 2fr;
   gap: 2rem;
   margin-top: 2rem;
 }
@@ -79,7 +79,6 @@
   color: #6b7280;
 }
 
-/* 상담 유형 태그 색상 */
 .student-tag {
   display: inline-block;
   margin-top: 0.6rem;
@@ -91,29 +90,29 @@
 
 .student-tag.학습상담,
 .history-type.학습상담 {
-  background: #dbeafe;
   color: #2563eb;
+  background: #dbeafe;
 }
 
 .student-tag.생활상담,
 .history-type.생활상담 {
-  background: #dcfce7;
   color: #16a34a;
+  background: #dcfce7;
 }
 
 .student-tag.진로상담,
 .history-type.진로상담 {
-  background: #fef9c3;
   color: #ca8a04;
+  background: #fef9c3;
 }
 
 .student-tag.집중관리,
 .history-type.집중관리 {
-  background: #fee2e2;
   color: #dc2626;
+  background: #fee2e2;
 }
 
-/* 전체 학생 드롭다운 */
+/* 드롭다운 */
 .student-dropdown {
   margin: 1rem 0 2rem 0;
   display: flex;
@@ -146,17 +145,56 @@
   outline: none;
 }
 
-/* 상담 작성 */
-.student-section {
+/* ============================= */
+/* 전체 상담일지 박스 (wrapper) */
+/* ============================= */
+.counseling-wrapper {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.wrapper-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 카드 박스 */
+.card-box {
   background: white;
   padding: 1.5rem;
   border-radius: 1rem;
   border: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 입력 폼 */
 .form-title {
   font-size: 1.3rem;
   font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
@@ -168,14 +206,19 @@
   margin-bottom: 0.9rem;
 }
 
+.textarea {
+  height: 100px;
+  resize: none;
+}
+
 .button-group {
   display: flex;
   gap: 0.8rem;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
 }
 
 .btn-primary {
-  background: #2563eb;
+  background: #2E86C1;
   color: white;
   padding: 0.6rem 1.2rem;
   border-radius: 0.5rem;
@@ -190,22 +233,39 @@
   font-weight: 600;
 }
 
-.ai-preview {
-  margin-top: 1rem;
-  padding: 0.9rem;
+.btn-tertiary {
+  background: #6b7280;
+  color: white;
+  padding: 0.6rem 1.2rem;
   border-radius: 0.5rem;
+  font-weight: 600;
+}
+
+/* ============================= */
+/* AI 상담일지 미리보기 */
+/* ============================= */
+.ai-preview-box {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 2px dashed #2563eb;
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
 }
 
-/* 상담 통계 */
-.detail-section {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  border: 1px solid #e5e7eb;
+.ai-preview-box h4 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
+.ai-preview-box .placeholder {
+  color: #6b7280;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* ============================= */
+/* 상담 현황 통계 */
+/* ============================= */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -217,8 +277,10 @@
   padding: 1rem;
   border-radius: 0.75rem;
   text-align: center;
-  font-weight: bold;
-  font-size: 1.2rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .stat-card span {
@@ -228,12 +290,23 @@
   color: #6b7280;
 }
 
-.stat-card.blue { background: #dbeafe; color: #2563eb; }
-.stat-card.green { background: #dcfce7; color: #16a34a; }
-.stat-card.yellow { background: #fef9c3; color: #ca8a04; }
-.stat-card.red { background: #fee2e2; color: #dc2626; }
+/* 숫자 색상 */
+.stat-card.blue {
+  color: #2563eb;
+}
+.stat-card.green {
+  color: #16a34a;
+}
+.stat-card.yellow {
+  color: #ca8a04;
+}
+.stat-card.red {
+  color: #dc2626;
+}
 
+/* ============================= */
 /* 상담 히스토리 */
+/* ============================= */
 .history-list {
   max-height: 250px;
   overflow-y: auto;
@@ -263,6 +336,48 @@
 .history-content {
   color: #6b7280;
   font-size: 0.9rem;
+}
+
+/* ============================= */
+/* 상담 히스토리 액션 버튼 */
+/* ============================= */
+.history-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  gap: 0.5rem;
+}
+
+.btn-edit {
+  background-color: #2E86C1;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-edit:hover {
+  background-color: #2E86C1;
+}
+
+.btn-delete {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-delete:hover {
+  background-color: #b91c1c;
 }
 
 .empty-card {
