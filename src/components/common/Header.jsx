@@ -8,7 +8,7 @@ const Header = () => {
 
   // 경로 → 타이틀 매핑
   const titleMap = {
-    '/dashboard': '대시보드',
+    '/dashboard': '홈',
     '/attendance': '출결관리',
     '/grades': '성적평가',
     '/progress': '진도 및 과제관리',
@@ -25,11 +25,23 @@ const Header = () => {
     '/documents': '행정 서류',
     '/facility': '교실 환경',
     '/survey': '조사·설문',
+    '/LifeRecord': '생활기록부',
+    '/problem-writing': '문제작성'
   };
 
-  // 현재 경로를 기반으로 타이틀 추출
+  // 현재 경로
   const currentPath = location.pathname;
-  const currentTitle = titleMap[currentPath] || '페이지';
+
+  // 기본값
+  let currentTitle = '페이지';
+
+  // startsWith 매칭 적용
+  for (const path in titleMap) {
+    if (currentPath.startsWith(path)) {
+      currentTitle = titleMap[path];
+      break;
+    }
+  }
 
   const today = new Date().toLocaleDateString('ko-KR', {
     year: 'numeric',
@@ -43,7 +55,9 @@ const Header = () => {
       <div className="flex w-full max-w-[1124px] flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-0">
         {/* Left Section - Title Group */}
         <div className="flex flex-col items-start gap-[7px]">
-          <h1 className="text-[24px] font-bold text-[#2C3E50] leading-normal">{currentTitle}</h1>
+          <h1 className="text-[24px] font-bold text-[#2C3E50] leading-normal">
+            {currentTitle}
+          </h1>
           <p className="text-[14px] font-medium text-[#7F8C8D] leading-normal">
             6학년 3반 - {today}
           </p>

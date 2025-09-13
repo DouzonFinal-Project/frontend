@@ -1,6 +1,7 @@
 // src/pages/Dashboard/sections/Notices.jsx
 import React from "react";
 
+import headerIcon from "../../../assets/icons/dashboard/notiIcon01.svg";
 export default function Notices({
   title = "알림 및 공지사항",
   items = [],          // 프로젝트 포맷: [{ title, summary }]
@@ -27,7 +28,7 @@ export default function Notices({
       {/* 섹션 헤더: 기존 골격 유지 */}
       <header className="mb-3 flex items-center gap-2">
         <img
-          src="/src/assets/icons/dashboard/h2-notices.svg"
+          src={headerIcon}
           className="h-5 w-5"
           alt=""
           loading="lazy"
@@ -43,13 +44,7 @@ export default function Notices({
             className="p-4 border-t first:border-t-0 border-slate-100"
           >
             {/* Builder 느낌(좌측 파란 보더 + 연한 배경) */}
-            <div className="flex items-start gap-3 rounded-lg bg-[#F8FAFC] border-l-4 border-[#3498DB] p-4">
-              <img
-                src="/src/assets/icons/dashboard/notice-bell.svg"
-                className="h-4 w-4 mt-1 shrink-0"
-                alt=""
-                loading="lazy"
-              />
+            <div className="flex items-start gap-3 rounded-lg bg-[#F8FAFC] border-l-8 border-[#3498DB] p-4">
               <div>
                 <div className="font-medium text-[#2C3E50]">{n.title}</div>
                 <p className="mt-0.5 text-sm text-slate-600">

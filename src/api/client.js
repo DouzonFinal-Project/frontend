@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL,
+  baseURL: process.env.REACT_APP_API_BASE_URL || "v1",
   timeout: Number(process.env.REACT_APP_API_TIMEOUT) || 15000,
 });
 

@@ -1,39 +1,47 @@
 import React from "react";
 
-export default function SummarySection({ data }) {
-  if (!data) {
-    return (
-      <section className="w-full max-w-[1100px] border border-[#E1E5E9] rounded bg-white">
-        <p className="p-4 text-sm text-gray-500">학생을 선택하면 요약이 표시됩니다</p>
-      </section>
-    );
-  }
+export default function SummarySection({ data, loading }) {
+  // data가 없거나(미선택) 로딩 중이어도 표는 항상 렌더링
+  // /school_report/full 응답 형태: { attendance:[], grades:[], reports:[] }
+// SummarySection.jsx
+  const attendanceSummary = (() => {
+     if (loading) return "불러오는 중…";
+    const arr = data?.attendance;
+    if (typeof arr === "string") return arr || "출결 데이터 없음";
+     if (Array.isArray(arr) && arr.length) {
+       const absents = arr.filter(a => a.status === "결석").length;
+       return `${arr.length}일 기록 (결석 ${absents}회)`;
+     }
+     return "출결 데이터 없음";
+   })();
 
-  // ✅ 출결 요약
-  const attendanceSummary = data.attendance?.length
-    ? `${data.attendance.length}일 기록 (결석 ${data.attendance.filter(a => a.status === "결석").length}회)`
-    : "출결 데이터 없음";
+  const gradesSummary = (() => {
+     if (loading) return "불러오는 중…";
+    const arr = data?.grades;
+    if (typeof arr === "string") return arr || "성적 데이터 없음";
+     if (Array.isArray(arr) && arr.length) {
+       return arr.slice(0, 3).map(g => `${g.subject ?? g.subject_name} ${g.score}`).join(" / ");
+     }
+     return "성적 데이터 없음";
+   })();
 
-  // ✅ 성적 요약 (상위 3과목만 표시)
-  const gradesSummary = data.grades?.length
-    ? data.grades.slice(0, 3).map(g => `${g.subject} ${g.score}`).join(" / ")
-    : "성적 데이터 없음";
+  const behaviorSummary = (() => {
+     if (loading) return "불러오는 중…";
+    const reports = data?.reports;
+    if (typeof data?.behavior === "string") return data.behavior || "행동특성 데이터 없음";
+     if (Array.isArray(reports) && reports.length) {
+       const latest = reports[reports.length - 1];
+       const merged = [
+         latest.behavior_summary,
+         latest.peer_relation,
+         latest.career_aspiration,
+         latest.teacher_feedback,
+       ].filter(Boolean).join(" / ");
+       return merged || "행동특성 데이터 없음";
+     }
+     return "행동특성 데이터 없음";
+   })();
 
-  // ✅ 행동특성 요약 (reports 배열의 최신 데이터 기준)
-  const latestReport = Array.isArray(data.reports) && data.reports.length > 0
-    ? data.reports[data.reports.length - 1]
-    : null;
-
-  const behaviorSummary = latestReport
-    ? [
-        latestReport.behavior_summary,
-        latestReport.peer_relation,
-        latestReport.career_aspiration,
-        latestReport.teacher_feedback,
-      ]
-        .filter(Boolean) // 값이 있는 것만
-        .join(" / ")
-    : "행동특성 데이터 없음";
 
   const rows = [
     ["출결", attendanceSummary],
@@ -53,6 +61,7 @@ export default function SummarySection({ data }) {
         </div>
       </div>
 
+      {/* 본문 표: 항상 렌더링 */}
       {rows.map(([label, content], idx) => (
         <div key={`${label}-${idx}`} className="grid grid-cols-2 h-[35px]" role="row">
           <div className="bg-[#ECF0F1] flex items-center justify-center px-4" role="cell">

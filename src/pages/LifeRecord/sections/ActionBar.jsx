@@ -1,3 +1,4 @@
+
 // src/pages/LifeRecord/sections/ActionBar.jsx
 import React from "react";
 export default function ActionBar({

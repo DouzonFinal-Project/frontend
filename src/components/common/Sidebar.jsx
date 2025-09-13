@@ -1,5 +1,28 @@
-import { useState } from "react";
-import React from "react";
+import React, { useState, useEffect } from "react"; 
+import { useNavigate, useLocation } from "react-router-dom";
+
+/** 경로 매핑 */
+export const PATHS = { 
+  dashboard: "/dashboard",
+  attendance: "/attendance",
+  grades: "/grades",
+  progress: "/progress",
+  reports: "/reports",
+  counseling: "/counseling",
+  LifeGuidance: "/LifeGuidance",
+  studentInfo: "/studentInfo",
+  homeLetter: "/homeLetter",
+  notice: "/notice",
+  staffCollaboration: "/staffCollaboration",
+  Schedule: "/Schedule",
+  timetable: "/timetable",
+  events: "/events",
+  documents: "/documents",
+  facility: "/facility",
+  survey: "/survey",
+  "problem-writing": "/problem-writing",
+  LifeRecord: "/LifeRecord",
+};
 
 // 서브메뉴 아이콘 컴포넌트들
 const Submenu1Icon = () => (
@@ -59,10 +82,15 @@ const CategoryHeader = ({ title }) => (
 );
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [activeMenu, setActiveMenu] = useState("dashboard");
 
   const handleMenuClick = (menuId) => {
     setActiveMenu(menuId);
+    setActiveSub(null);
+    const to = PATHS[menuId];
+    if (to) navigate(to);
   };
 
   const [activeSub, setActiveSub] = useState(null);
@@ -72,13 +100,26 @@ const Sidebar = () => {
   ];
 
   const reportsSubItems = [
-    { id: "life-record", label: "생활기록부작성", icon: <Submenu2Icon /> },
+    { id: "LifeRecord", label: "생활기록부작성", icon: <Submenu2Icon /> },
   ];
+
+  const MAIN_TO_SUB = {
+    grades: ["problem-writing"],
+    reports: ["LifeRecord"],
+  };
+
+  const isMenuActive = (id) => {
+    if (activeMenu !== id) return false;
+    const subs = MAIN_TO_SUB[id];
+    // 자식이 활성화돼 있으면 부모는 비활성 처리
+    if (subs && activeSub && subs.includes(activeSub)) return false;
+    return true;
+  };
 
   const menuItems = [
     {
       id: "dashboard",
-      label: "대시보드",
+      label: "홈",
       icon: (
         <svg
           width="10"
@@ -219,7 +260,7 @@ const Sidebar = () => {
       ),
     },
     {
-      id: "lifeGuidance",
+      id: "LifeGuidance",
       label: "생활지도",
       icon: (
         <svg
@@ -320,7 +361,7 @@ const Sidebar = () => {
 
   const scheduleMenuItems = [
     {
-      id: "classSchedule",
+      id: "Schedule",
       label: "학급 일정",
       icon: (
         <svg
@@ -437,6 +478,32 @@ const Sidebar = () => {
     },
   ];
 
+  useEffect(() => {
+    const path = location.pathname || "/";
+
+    // 1) 서브 라우트 우선 처리: 하이라이트를 상위 메뉴로 매핑
+    if (path.startsWith(PATHS["problem-writing"])) {
+      setActiveMenu("grades");
+      setActiveSub("problem-writing");
+      return;
+    }
+    if (path.startsWith(PATHS["LifeRecord"])) {
+      setActiveMenu("reports");
+      setActiveSub("LifeRecord");
+      return;
+    }
+
+    // 2) 그 외: PATHS에서 일치하는 키를 활성화
+    const foundMain = Object.entries(PATHS).find(([, p]) => path.startsWith(p));
+    if (foundMain) {
+      const [key] = foundMain;
+      setActiveMenu(key);
+    } else {
+      setActiveMenu("dashboard");
+    }
+    setActiveSub(null);
+  }, [location.pathname]);
+
   return (
     <aside className="flex flex-col w-[250px] bg-slate-800 overflow-y-auto scrollbar-hide">
       <div className="flex flex-col justify-center items-center min-h-[94px] px-4 py-3 gap-1.5 bg-slate-800">
@@ -465,7 +532,7 @@ const Sidebar = () => {
           <React.Fragment key={item.id}>
             <MenuItem
               item={item}
-              isActive={activeMenu === item.id}
+              isActive={isMenuActive(item.id)}
               onClick={handleMenuClick}
             />
             {/* 성적평가 바로 다음에 문제작성 서브메뉴 */}
@@ -476,7 +543,11 @@ const Sidebar = () => {
                     key={sub.id}
                     item={sub}
                     isActive={activeSub === sub.id}
-                    onClick={setActiveSub}
+                    onClick={(id) => {
+                      setActiveSub(id);
+                      const to = PATHS[id];
+                      if (to) navigate(to);
+                    }}
                   />
                 ))}
               </div>
@@ -489,7 +560,11 @@ const Sidebar = () => {
                     key={sub.id}
                     item={sub}
                     isActive={activeSub === sub.id}
-                    onClick={setActiveSub}
+                    onClick={(id) => {
+                      setActiveSub(id);
+                      const to = PATHS[id];
+                      if (to) navigate(to);
+                    }}
                   />
                 ))}
               </div>
@@ -545,8 +620,12 @@ const Sidebar = () => {
           />
         ))}
 
-        <button className="flex w-full h-12 px-4 justify-center items-center gap-2.5 bg-red-600 hover:bg-red-700 transition-colors">
-          <span className="text-white text-sm font-bold leading-normal tracking-wide text-center">
+        <button
+          className="flex w-full h-12 px-4 justify-center items-center gap-2.5 bg-red-600 hover:bg-red-700 transition-colors"
+          onClick={() => {
+            navigate("/"); // [ADD] 로그아웃 후 이동
+          }}
+        >          <span className="text-white text-sm font-bold leading-normal tracking-wide text-center">
             로그아웃
           </span>
         </button>

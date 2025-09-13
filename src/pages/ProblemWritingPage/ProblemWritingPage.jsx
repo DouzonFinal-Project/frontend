@@ -167,9 +167,9 @@ export default function ProblemWritingPage() {
         setGeneratedTest(prev => {
           const finalText = finalContent || streamingContent || prev.content || '';
           return {
-            loading: false,
-            content: finalText,
-            settings: settings
+          loading: false,
+          content: finalText,
+          settings: settings
           };
         });
         console.log('스트리밍 완료:', finalContent);
@@ -177,8 +177,8 @@ export default function ProblemWritingPage() {
 
       const onError = (error) => {
         setIsStreaming(false);
-                setGeneratedTest({
-                  loading: false,
+        setGeneratedTest({
+          loading: false,
           content: '문제지 생성 중 오류가 발생했습니다. 다시 시도해주세요.',
           error: true
         });
@@ -235,6 +235,113 @@ export default function ProblemWritingPage() {
   const cancelEdit = () => {
     setIsEditMode(false);
     setEditedContent('');
+  };
+
+  // PDF 생성 함수
+  const generatePDF = () => {
+    // 문제지와 정답과 해설만 포함된 새 창 열기
+    const content = streamingContent || generatedTest?.content || '';
+    const { problem, answer } = separateProblemAndAnswer(content);
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>수학 문제지</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 2cm;
+            @top-left { content: ""; }
+            @top-center { content: ""; }
+            @top-right { content: ""; }
+            @bottom-left { content: ""; }
+            @bottom-center { content: ""; }
+            @bottom-right { content: ""; }
+          }
+          body {
+            font-family: 'Malgun Gothic', sans-serif;
+            font-size: 12pt;
+            line-height: 1.4;
+            color: #000;
+            background: white;
+            margin: 0;
+            padding: 0;
+          }
+          .problem-section {
+            page-break-after: always;
+            margin-bottom: 0;
+          }
+          .answer-section {
+            page-break-before: always;
+            margin-top: 0;
+          }
+          .print-title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20pt;
+            border-bottom: 2pt solid #000;
+            padding-bottom: 10pt;
+          }
+          .print-problem-number {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 8pt;
+          }
+          .print-choice {
+            margin-left: 20pt;
+            margin-bottom: 4pt;
+          }
+          .print-answer-box {
+            border: 2pt dashed #000;
+            height: 80pt;
+            margin: 10pt 0;
+            padding: 8pt;
+          }
+          .print-answer {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 8pt;
+          }
+          .print-explanation {
+            font-size: 11pt;
+            margin-bottom: 4pt;
+          }
+          .print-divider {
+            border-top: 2pt solid #000;
+            margin: 20pt 0;
+            text-align: center;
+            padding-top: 10pt;
+            font-weight: bold;
+          }
+          pre {
+            white-space: pre-wrap;
+            font-family: 'Malgun Gothic', sans-serif;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="problem-section">
+          <div class="print-title">수학 문제지</div>
+          <pre>${problem}</pre>
+        </div>
+        
+        <div class="answer-section">
+          <div class="print-title">정답과 해설</div>
+          <pre>${answer}</pre>
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    
+    // 인쇄 대화상자 열기
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
 
   return (
@@ -553,18 +660,29 @@ export default function ProblemWritingPage() {
                         </button>
                       </div>
                       
-                      {/* 수정하기/저장/취소 버튼 */}
+                      {/* 수정하기/저장/취소/PDF생성 버튼 */}
                       <div className="flex items-center gap-2">
                         {!isEditMode ? (
-                          <button 
-                            onClick={toggleEditMode}
-                            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            수정하기
-                          </button>
+                          <>
+                            <button 
+                              onClick={toggleEditMode}
+                              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              수정하기
+                            </button>
+                            <button 
+                              onClick={generatePDF}
+                              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                              </svg>
+                              PDF 생성
+                            </button>
+                          </>
                         ) : (
                           <>
                             <button 
@@ -572,10 +690,10 @@ export default function ProblemWritingPage() {
                               className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
                               저장
-                            </button>
+                        </button>
                             <button 
                               onClick={cancelEdit}
                               className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
@@ -590,10 +708,10 @@ export default function ProblemWritingPage() {
                       </div>
                     </div>
               
-                    <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm h-[800px] overflow-y-auto">
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm h-[800px] overflow-y-auto">
                       {isEditMode ? (
-                        <div className="h-full">
-                          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="h-full p-8">
+                          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg no-print">
                             <div className="flex items-center gap-2 text-yellow-800">
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -602,30 +720,211 @@ export default function ProblemWritingPage() {
                             </div>
                             <p className="text-sm text-yellow-700 mt-1">문제지 내용을 직접 수정할 수 있습니다. 저장 버튼을 클릭하여 변경사항을 적용하세요.</p>
                           </div>
-                          <textarea
-                            value={editedContent}
-                            onChange={(e) => setEditedContent(e.target.value)}
-                            className="w-full h-[calc(100%-80px)] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
-                            placeholder="문제지 내용을 입력하세요..."
-                          />
+                          
+                          {/* 문제지 섹션 */}
+                          <div className="mb-8 problem-section">
+                            <div className="text-center border-b border-gray-200 pb-4 mb-6">
+                              <h1 className="text-2xl font-bold text-gray-800">수학 문제지</h1>
+                            </div>
+                            <textarea
+                              value={(() => {
+                                const content = editedContent || streamingContent || generatedTest?.content || '';
+                                const { problem } = separateProblemAndAnswer(content);
+                                return problem;
+                              })()}
+                              onChange={(e) => {
+                                const content = editedContent || streamingContent || generatedTest?.content || '';
+                                const { answer } = separateProblemAndAnswer(content);
+                                setEditedContent(e.target.value + '\n\n[정답]\n\n' + answer);
+                              }}
+                              className="w-full h-[500px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
+                              placeholder="문제지 내용을 입력하세요..."
+                            />
+                            </div>
+
+                          {/* 페이지 분할 */}
+                          <div className="page-break-before mb-8">
+                            <div className="border-t-2 border-gray-300 my-8 page-divider">
+                              <div className="text-center text-gray-500 text-sm py-2">정답과 해설</div>
+                          </div>
+                        </div>
+
+                          {/* 정답과 해설 섹션 */}
+                          <div className="answer-section">
+                            <div className="text-center border-b border-gray-200 pb-4 mb-6">
+                              <h1 className="text-2xl font-bold text-gray-800">정답과 해설</h1>
+                              <p className="text-sm text-gray-500">각 문제의 정답과 상세한 해설을 확인하세요</p>
+                            </div>
+                            <textarea
+                              value={(() => {
+                                const content = editedContent || streamingContent || generatedTest?.content || '';
+                                const { answer } = separateProblemAndAnswer(content);
+                                return answer;
+                              })()}
+                              onChange={(e) => {
+                                const content = editedContent || streamingContent || generatedTest?.content || '';
+                                const { problem } = separateProblemAndAnswer(content);
+                                setEditedContent(problem + '\n\n[정답]\n\n' + e.target.value);
+                              }}
+                              className="w-full h-[500px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
+                              placeholder="정답과 해설 내용을 입력하세요..."
+                            />
+                          </div>
                         </div>
                       ) : (
-                        <div className="prose max-w-none text-gray-800 whitespace-pre-wrap">
+                        <div className="p-8">
                           {(() => {
                             const content = streamingContent || generatedTest?.content || '';
                             const { problem, answer } = separateProblemAndAnswer(content);
                             
                             if (activeTab === 'problem') {
                               return (
-                                <>
-                                  {problem}
-                                  {isStreaming && <span className="animate-pulse text-blue-500">|</span>}
-                                </>
+                                <div className="simple-problem-layout">
+                                  <div className="problem-header mb-8">
+                                    <div className="text-center border-b border-gray-200 pb-4">
+                                      <h1 className="text-2xl font-bold text-gray-800 mb-2">수학 문제지</h1>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="problem-content">
+                                    {problem.split('\n').map((line, index) => {
+                                      // 문제 번호 감지 (1번, 2번 등)
+                                      if (line.match(/^\d+번\./)) {
+                                        return (
+                                          <div key={index} className="mb-6">
+                                            <div className="text-lg font-bold text-gray-800 mb-3">{line}</div>
+                                          </div>
+                                        );
+                                      }
+                                      
+                                      // 선택지 감지 (①, ②, ③, ④)
+                                      if (line.match(/^[①②③④⑤⑥⑦⑧⑨⑩]/)) {
+                                        return (
+                                          <div key={index} className="ml-6 mb-2">
+                                            <span className="text-gray-700 leading-relaxed">{line}</span>
+                                          </div>
+                                        );
+                                      }
+                                      
+                                      // 서술형 답란 감지 (답:)
+                                      if (line.includes('답:')) {
+                                        return (
+                                          <div key={index} className="mt-4 mb-6">
+                                            <div 
+                                              className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 focus-within:border-blue-400 focus-within:bg-white transition-colors"
+                                              contentEditable
+                                              suppressContentEditableWarning={true}
+                                              style={{ outline: 'none' }}
+                                            >
+                                            </div>
+                                          </div>
+                                        );
+                                      }
+                                      
+                                      // 빈 줄
+                                      if (line.trim() === '') {
+                                        return <div key={index} className="mb-3"></div>;
+                                      }
+                                      
+                                      // 일반 텍스트
+                                      return (
+                                        <div key={index} className="mb-3 text-gray-800 leading-relaxed">
+                                          {line}
+                                        </div>
+                                      );
+                                    })}
+                                    
+                                  </div>
+                                  
+                                  {isStreaming && (
+                                    <div className="mt-6 text-center">
+                                      <span className="inline-flex items-center gap-2 text-blue-500">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                        생성 중...
+                                </span>
+                                    </div>
+                              )}
+                            </div>
                               );
                             } else {
                               return (
-                                <div className="text-gray-800">
-                                  {answer}
+                                <div className="simple-answer-layout">
+                                  <div className="answer-header mb-8">
+                                    <div className="text-center border-b border-gray-200 pb-4">
+                                      <h1 className="text-2xl font-bold text-gray-800 mb-2">정답과 해설</h1>
+                                      <p className="text-sm text-gray-500">각 문제의 정답과 상세한 해설을 확인하세요</p>
+                          </div>
+                                  </div>
+                                  
+                                  <div className="answer-content">
+                                    {(() => {
+                                      const lines = answer.split('\n');
+                                      const problems = [];
+                                      let currentProblem = null;
+                                      
+                                      for (let i = 0; i < lines.length; i++) {
+                                        const line = lines[i];
+                                        
+                                        // 정답 섹션 헤더는 건너뛰기
+                                        if (line.includes('[정답]') || line.includes('정답:')) {
+                                          continue;
+                                        }
+                                        
+                                        // 문제 번호 감지 (1번, 2번 등)
+                                        if (line.match(/^\d+번\./)) {
+                                          // 이전 문제가 있으면 저장
+                                          if (currentProblem) {
+                                            problems.push(currentProblem);
+                                          }
+                                          
+                                          // 새 문제 시작
+                                          const parts = line.split('.');
+                                          const problemNum = parts[0];
+                                          const answer = parts[1]?.trim() || '';
+                                          
+                                          currentProblem = {
+                                            number: problemNum,
+                                            answer: answer,
+                                            explanation: []
+                                          };
+                                        } else if (currentProblem && line.trim()) {
+                                          // 해설 내용 추가
+                                          currentProblem.explanation.push(line.trim());
+                                        }
+                                      }
+                                      
+                                      // 마지막 문제 추가
+                                      if (currentProblem) {
+                                        problems.push(currentProblem);
+                                      }
+                                      
+                                      return problems.map((problem, index) => (
+                                        <div key={index} className="mb-6 pb-6 border-b border-gray-100 last:border-b-0">
+                                          <div className="flex items-start gap-4">
+                                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-700 flex-shrink-0">
+                                              {problem.number}
+                                            </div>
+                                            <div className="flex-1">
+                                              {problem.answer && (
+                                                <div className="mb-3">
+                                                  <div className="text-lg font-semibold text-gray-800">{problem.answer}</div>
+                                                </div>
+                                              )}
+                                              {problem.explanation.length > 0 && (
+                                                <div className="space-y-1">
+                                                  {problem.explanation.map((line, lineIndex) => (
+                                                    <p key={lineIndex} className="text-gray-700 leading-relaxed">
+                                                      {line}
+                                                    </p>
+                                                  ))}
+                            </div>
+                              )}
+                          </div>
+                          </div>
+                                        </div>
+                                      ));
+                                    })()}
+                                  </div>
                                 </div>
                               );
                             }

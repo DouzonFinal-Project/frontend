@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000", // FastAPI 서버 주소
+  baseURL: API_BASE_URL, // ✅ 환경 변수 사용
 });
 
 // ✅ 상담 채팅 (RAG 기반)
@@ -38,10 +40,14 @@ export const saveCounseling = (data) =>
 
 // ✅ 상담 마스터 챗
 export const masterCouselingChat = (data) =>
+<<<<<<< HEAD
   API.post("/v1/gemini/master-chat", data);
 
 // ✅ Milvus 상담 일지 저장
 export const milvusAddRecord = (data) =>
   API.post("/v1/milvus/add-record", data);
+=======
+  API.post("/gemini/master-chat", data);
+>>>>>>> dev
 
 export default API;

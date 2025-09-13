@@ -14,10 +14,12 @@ const ChatbotSidebar = ({ isOpen, onClose }) => {
   // URL 경로에 따른 초기 탭 설정
   const getInitialTab = useCallback(() => {
     switch (location.pathname) {
-      case '/schedule':
+      case '/Schedule':
         return 'schedule';
       case '/problem-writing':
         return 'exam';
+      case '/counseling':
+        return 'consultation';
       case '/dashboard':
       default:
         return 'attendance';

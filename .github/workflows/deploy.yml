@@ -3,66 +3,67 @@ name: Frontend CI/CD
 on:
   push:
     branches: [ "main" ]
-    paths: [ "**" ]  # 이 리포 전체
 
 env:
   AWS_REGION: ap-northeast-2
-  AWS_ACCOUNT_ID: 373317459179
   ECR_REPO: web/frontend
-  IMAGE_TAG: ${{ github.sha }}
+  ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  IMAGE_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/web/frontend
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  build_and_push:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::373317459179:role/github-actions-ecr-pusher
-          aws-region: ${{ env.AWS_REGION }}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-ecr-pusher
+        aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v2
+    - name: Login to ECR
+      uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build & Push (Docker)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          build-args: |
-            REACT_APP_API_BASE_URL=/v1
-          push: true
-          tags: |
-            ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
-            ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:${{ github.sha }}
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.IMAGE_URI }}
+        tags: |
+          type=raw,value=latest
+          type=sha,prefix=sha-,format=short
+    
+    - name: Build & Push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        platforms: linux/amd64
+        tags: ${{ steps.meta.outputs.tags }}
 
-  deploy:
-    needs: build_and_push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::373317459179:role/github-actions-ecr-pusher
-          aws-region: ${{ env.AWS_REGION }}
+    - name: Extract sha tag
+      id: tag
+      run: |
+        echo "TAG=$(echo '${{ steps.meta.outputs.tags }}' | tr ' ' '\n' | grep ':sha-' | head -n1 | awk -F: '{print $2}')" >> $GITHUB_OUTPUT
 
-      - name: Deploy via SSM (by tag Role=frontend)
-        run: |
-          set -eux
-          FRONT_IMAGE="${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:latest"
-          aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --targets "Key=tag:Role,Values=frontend" \
-            --parameters 'commands=[
-              "set -eux",
-              "cd /opt/frontend",
-              "FRONT_IMAGE='"$FRONT_IMAGE"' docker compose pull",
-              "FRONT_IMAGE='"$FRONT_IMAGE"' docker compose up -d"
-            ]' \
-            --comment "Deploy frontend ${{ env.IMAGE_TAG }}" \
-            --region ${{ env.AWS_REGION }}
+    - name: Deploy via SSM
+      run: |
+        # build & push 때 실제로 생성/푸시된 짧은 sha 태그(e.g., sha-24ffb25)
+        SHA_TAG="${{ steps.tag.outputs.TAG }}"
+        echo "Deploy TAG=${SHA_TAG}"
+
+        # 한 셸에서 ENV 설정 + 스크립트 실행(ENV 유실 방지)
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets "Key=tag:Role,Values=frontend" \
+          --parameters "commands=[
+            \"bash -lc 'export AWS_REGION=${{ env.AWS_REGION }} ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} REPO=${{ env.ECR_REPO }} TAG=${SHA_TAG}; sudo -E /opt/frontend/deploy.sh ${SHA_TAG}'\"
+          ]" \
+          --comment "Deploy frontend ${SHA_TAG}" \
+          --region ${{ env.AWS_REGION }} \
+          --cloud-watch-output-config "CloudWatchLogGroupName=/aws/ssm/RunCommand,CloudWatchOutputEnabled=true"
